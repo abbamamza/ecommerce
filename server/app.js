@@ -32,7 +32,8 @@ const brainTreeRouter = require("./routes/braintree");
 const orderRouter = require("./routes/orders");
 const usersRouter = require("./routes/users");
 const customizeRouter = require("./routes/customize");
-// Import Auth middleware for check user login or not~
+
+// Import Auth middleware
 const { loginCheck } = require("./middleware/auth");
 const CreateAllFolder = require("./config/uploadFolderCreateScript");
 
@@ -51,7 +52,7 @@ mongoose
       "==============Mongodb Database Connected Successfully=============="
     )
   )
-  .catch((err) => console.log("Database Not Connected !!!"));
+  .catch((err) => console.log("Database Not Connected !!!", err));
 
 // Middleware
 app.use(morgan("dev"));
@@ -70,8 +71,20 @@ app.use("/api", brainTreeRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/customize", customizeRouter);
 
-// Run Server
+// ================ RENDER FIX - THIS IS THE IMPORTANT PART ================
+// Render (and many other platforms) assigns a dynamic port via process.env.PORT
+// Always listen on that port (or fallback to 8000 only for local development)
+
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("Server is running on ", PORT);
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
+
+// Optional: extra logs that help you see what's happening on Render
+console.log("Using PORT:", PORT);
+if (process.env.PORT) {
+  console.log("Render detected - using assigned port");
+}
+
+module.exports = app; // good practice, some platforms need this
