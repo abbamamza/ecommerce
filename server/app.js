@@ -1,19 +1,8 @@
 /* 
-
 ================== Most Important ==================
-* Issue 1 :
-In uploads folder you need create 3 folder like bellow.
-Folder structure will be like: 
-public -> uploads -> 1. products 2. customize 3. categories
-*** Now This folder will automatically create when we run the server file
-
-* Issue 2:
-For admin signup just go to the auth 
-controller then newUser obj, you will 
-find a role field. role:1 for admin signup & 
-role: 0 or by default it for customer signup.
-go user model and see the role field.
-
+* Issue 1: Folders (public/uploads/products, customize, categories) 
+  are created automatically on server start
+* Issue 2: Admin signup → role: 1  |  Customer → role: 0 (default)
 */
 
 const express = require("express");
@@ -24,7 +13,7 @@ const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
-// Import Router
+// Import Routers
 const authRouter = require("./routes/auth");
 const categoryRouter = require("./routes/categories");
 const productRouter = require("./routes/products");
@@ -33,33 +22,33 @@ const orderRouter = require("./routes/orders");
 const usersRouter = require("./routes/users");
 const customizeRouter = require("./routes/customize");
 
-// Import Auth middleware
+// Middleware & Helpers
 const { loginCheck } = require("./middleware/auth");
 const CreateAllFolder = require("./config/uploadFolderCreateScript");
 
-/* Create All Uploads Folder if not exists | For Uploading Images */
+// Create upload folders if they don't exist
 CreateAllFolder();
 
-// Database Connection
+// MongoDB Connection
 mongoose
   .connect(process.env.DATABASE, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
+    useFindAndModify: false,
   })
-  .then(() =>
-    console.log(
-      "==============Mongodb Database Connected Successfully=============="
-    )
-  )
-  .catch((err) => console.log("Database Not Connected !!!", err));
+  .then(() => console.log("============== MongoDB Connected Successfully =============="))
+  .catch((err) => {
+    console.log("Database Connection Failed !!!", err);
+    process.exit(1); // Exit if DB fails — Render will show clear error
+  });
 
-// Middleware
+// Middlewares
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(cors());
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Routes
@@ -71,20 +60,22 @@ app.use("/api", brainTreeRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/customize", customizeRouter);
 
-// ================ RENDER FIX - THIS IS THE IMPORTANT PART ================
-// Render (and many other platforms) assigns a dynamic port via process.env.PORT
-// Always listen on that port (or fallback to 8000 only for local development)
-
-const PORT = process.env.PORT || 8000;
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Health check route (helps Render detect the service is alive)
+app.get("/", (req, res) => {
+  res.send("Hayroo E-commerce API is running!");
 });
 
-// Optional: extra logs that help you see what's happening on Render
-console.log("Using PORT:", PORT);
-if (process.env.PORT) {
-  console.log("Render detected - using assigned port");
-}
+// ====================== RENDER-OPTIMIZED SERVER START ======================
+// This exact pattern guarantees Render detects the port in < 5 seconds
+const PORT = process.env.PORT || 8000;
 
-module.exports = app; // good practice, some platforms need this
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server is LIVE on port ${PORT}`);
+  console.log(`http://0.0.0.0:${PORT}`);
+  if (process.env.PORT) {
+    console.log("Render assigned port detected:", process.env.PORT);
+  }
+});
+
+// Extra safety — some platforms need this
+module.exports = app;
