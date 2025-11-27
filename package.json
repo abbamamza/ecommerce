@@ -1,0 +1,13 @@
+{
+  "name": "ecomm",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run start:dev --prefix server",
+    "start": "npm run dev"
+  },
+  "dependencies": {
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.1.11"
+  }
+}
