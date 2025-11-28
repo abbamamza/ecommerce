@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npm run start:dev --prefix server",
     "start": "npm start --prefix server",
-    "postinstall": "npm install --prefix server && npm install --prefix client && npm run build --prefix client"
+    "postinstall": "npm install --prefix server --legacy-peer-deps && npm install --prefix client --legacy-peer-deps && npm run build --prefix client"
   },
   "dependencies": {
     "cross-env": "^10.1.0",
