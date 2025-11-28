@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ecommerce-server
+    env: node
+    plan: free
+    branch: main
+    buildCommand: "npm install --legacy-peer-deps && npm install --legacy-peer-deps --prefix server && npm install --legacy-peer-deps --prefix client && npm run build --prefix client"
+    startCommand: "npm start --prefix server"
+    env:
+      - key: NODE_ENV
+        value: production
