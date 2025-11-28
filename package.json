@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "npm run start:dev --prefix server",
-    "start": "npm run dev"
+    "start": "npm start --prefix server",
+    "postinstall": "npm install --prefix server && npm install --prefix client && npm run build --prefix client"
   },
   "dependencies": {
     "cross-env": "^10.1.0",
